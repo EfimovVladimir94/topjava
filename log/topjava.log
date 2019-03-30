@@ -1,0 +1,2 @@
+2019-03-30 11:33:42,550 DEBUG UserServlet [MealServlet.java:28] init MealServlet
+2019-03-30 11:33:45,152 DEBUG UserServlet [MealServlet.java:34] redirect to meals, get
