@@ -15,20 +15,18 @@ public class MealTo {
         this.dateTime = dateTime;
         this.description = description;
         this.calories = calories;
-        this.exceed = excess;
+        this.exceed = exceed;
     }
 
-    public LocalDateTime getDateTime() {
-        return dateTime;
+    public Integer getId() {
+        return id;
     }
 
-    public String getDescription() {
-        return description;
-    }
+    public LocalDateTime getDateTime() { return dateTime; }
 
-    public int getCalories() {
-        return calories;
-    }
+    public String getDescription() { return description; }
+
+    public int getCalories() { return calories; }
 
     public boolean isExceed() {
         return exceed;
