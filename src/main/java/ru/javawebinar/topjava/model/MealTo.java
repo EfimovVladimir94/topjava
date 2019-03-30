@@ -28,7 +28,9 @@ public class MealTo {
 
     public int getCalories() { return calories; }
 
-    public boolean isExceed() {
+    public boolean isExceed() { return exceed; }
+
+    public boolean isExcess() {
         return exceed;
     }
 
