@@ -36,6 +36,7 @@
                 Description:<label><input type="text" name="description" value="${meal.description}"></label><br>
                 Calories:<label><input type="number" name="calories" value="${meal.calories}"></label>
                 <input type="submit" value="Update">
+                <button onclick="window.history.back()">Cancel</button>
             </form>
         </td>
     </tr>
