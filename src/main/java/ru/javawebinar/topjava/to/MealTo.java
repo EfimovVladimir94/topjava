@@ -1,4 +1,4 @@
-package ru.javawebinar.topjava.model;
+package ru.javawebinar.topjava.to;
 
 import java.time.LocalDateTime;
 
@@ -30,8 +30,6 @@ public class MealTo {
     public String getDescription() { return description; }
 
     public int getCalories() { return calories; }
-
-    public boolean isExceed() { return exceed; }
 
     public boolean isExcess() {
         return exceed;

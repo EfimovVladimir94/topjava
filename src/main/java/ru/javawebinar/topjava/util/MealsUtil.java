@@ -1,7 +1,7 @@
 package ru.javawebinar.topjava.util;
 
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.model.MealTo;
+import ru.javawebinar.topjava.to.MealTo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,6 +30,16 @@ public class MealsUtil {
 
     public static List<MealTo> getWithExcess(Collection<Meal> meals, int caloriesPerDay) {
         return getFilteredWithExcess(meals, caloriesPerDay, meal -> true);
+    }
+
+    public static List <Meal> filterMealbyDate (List<Meal> meals, LocalDate startDate, LocalDate endDate){
+        return filter(meals,meal -> DateTimeUtil.isBetween(meal.getDate(),startDate,endDate));
+    }
+
+    public static List<Meal> filter(List<Meal> meals, Predicate<Meal> predicate){
+        return meals.stream()
+                .filter(predicate)
+                .collect(Collectors.toList());
     }
 
     public static List<MealTo> getFilteredWithExcess(Collection<Meal> meals, int caloriesPerDay, LocalTime startTime, LocalTime endTime) {

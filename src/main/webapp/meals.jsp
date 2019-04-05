@@ -33,7 +33,7 @@
         </tr>
         </thead>
         <c:forEach items="${meals}" var="meal">
-            <jsp:useBean id="meal" scope="page" type="ru.javawebinar.topjava.model.MealTo"/>
+            <jsp:useBean id="meal" scope="page" type="ru.javawebinar.topjava.to.MealTo"/>
             <tr class="${meal.excess ? 'excess' : 'normal'}">
                 <td>
                         <%--${meal.dateTime.toLocalDate()} ${meal.dateTime.toLocalTime()}--%>
@@ -49,5 +49,47 @@
         </c:forEach>
     </table>
 </section>
+<section>
+    <form method="post" action="meals?action=filter">
+        <table border="1" cellpadding="10" cellspacing="10">
+            <tr>
+                <td>Дата начала</td>
+                <td>Дата конца</td>
+            </tr>
+            <tr>
+                <td><label>
+                    <input type="date" name="startDate">
+                </label></td>
+                <td><label>
+                    <input type="date" name="endDate">
+                </label></td>
+            </tr>
+            <tr>
+                <td>От времени</td>
+                <td>До времени</td>
+            </tr>
+            <tr>
+                <td><label>
+                    <input type="time" name="startTime">
+                </label>
+                </td>
+                <td><label>
+                    <input type="time" name="endTime">
+                </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button type="submit">Фильтр</button>
+                </td>
+                <td>
+                    <button type="submit" onclick="location.href='meals'">Cancel</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</section>
+
+
 </body>
 </html>
