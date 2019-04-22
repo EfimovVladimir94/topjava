@@ -17,7 +17,7 @@ public class SpringMain {
             System.out.println("Bean definition names: " + Arrays.toString(appCtx.getBeanDefinitionNames()));
             AdminRestController adminUserController = appCtx.getBean(AdminRestController.class);
             User admin = adminUserController.create(new User(null, "admin", "email@mail.ru", "password", Role.ROLE_ADMIN));
-            User user = adminUserController.create(new User(null, "user", "user1@mail.ru","password", Role.ROLE_USER));
+            User user = adminUserController.create(new User(null, "user", "user1@gmail.com","password", Role.ROLE_USER));
             adminUserController.getAll().forEach(System.out::println);
             System.out.println("=============================");
             System.out.println(adminUserController.getByMail("user1@gmail.com"));
