@@ -17,6 +17,9 @@ import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
 @Service
 public class UserServiceImpl implements UserService {
 
+    //@Autowired
+    //private UserRepository repository;
+
     private final UserRepository repository;
 
     @Autowired
@@ -59,5 +62,10 @@ public class UserServiceImpl implements UserService {
     public void update(User user) {
         Assert.notNull(user, "user must not be null");
         checkNotFoundWithId(repository.save(user), user.getId());
+    }
+
+    @Override
+    public User getUserByIdWithAllMeals(int userId) {
+        return checkNotFoundWithId(repository.getUserByIdWithAllMeals(userId), userId);
     }
 }
