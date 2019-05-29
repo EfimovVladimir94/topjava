@@ -8,6 +8,8 @@
     <bean class="ru.javawebinar.topjava.repository.inmemory.InMemoryUserRepositoryImpl" id="inmemoryUserRepository"/>
 
     <bean class="ru.javawebinar.topjava.service.UserServiceImpl">
+        <bean class="ru.javawebinar.topjava.service.UserServiceImpl">
+            or
         <constructor-arg name="repository" ref="inmemoryUserRepository"/>
     </bean>
 -->
