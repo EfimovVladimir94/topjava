@@ -356,7 +356,6 @@
             </activation>
         </profile>
     </profiles>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
