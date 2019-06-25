@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class MealTo extends BaseTo {
+public class MealToFromOutside extends BaseTo {
     @NotNull
     private LocalDateTime dateTime;
 
@@ -20,15 +20,11 @@ public class MealTo extends BaseTo {
     @NotNull
     private Integer calories;
 
-    @NotNull
-    private boolean excess;
-
-    public MealTo(Integer id, LocalDateTime dateTime, String description, int calories, boolean excess) {
+    public MealToFromOutside(Integer id, LocalDateTime dateTime, String description, int calories) {
         super(id);
         this.dateTime = dateTime;
         this.description = description;
         this.calories = calories;
-        this.excess = excess;
     }
 
     public LocalDateTime getDateTime() {
@@ -56,21 +52,12 @@ public class MealTo extends BaseTo {
         this.calories = calories;
     }
 
-    public boolean isExcess() {
-        return excess;
-    }
-
-    public void setExcess(boolean excess) {
-        this.excess = excess;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MealTo that = (MealTo) o;
-        return calories == that.calories &&
-                excess == that.excess &&
+        MealToFromOutside that = (MealToFromOutside) o;
+        return Objects.equals(calories, that.calories) &&
                 Objects.equals(id, that.id) &&
                 Objects.equals(dateTime, that.dateTime) &&
                 Objects.equals(description, that.description);
@@ -78,17 +65,18 @@ public class MealTo extends BaseTo {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, dateTime, description, calories, excess);
+        return Objects.hash(id, dateTime, description, calories);
     }
 
     @Override
     public String toString() {
-        return "MealTo{" +
+        return "MealToFromOutside{" +
                 "id=" + id +
                 ", dateTime=" + dateTime +
                 ", description='" + description + '\'' +
                 ", calories=" + calories +
-                ", excess=" + excess +
                 '}';
     }
+
 }
+
