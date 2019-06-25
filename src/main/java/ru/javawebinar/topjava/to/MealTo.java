@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class MealTo extends BaseTo {
+
     @NotNull
     private LocalDateTime dateTime;
 
@@ -23,7 +24,10 @@ public class MealTo extends BaseTo {
     @NotNull
     private boolean excess;
 
-    public MealTo(Integer id, LocalDateTime dateTime, String description, int calories, boolean excess) {
+    public MealTo() {
+    }
+
+    public MealTo(Integer id, LocalDateTime dateTime, String description, Integer calories, boolean excess) {
         super(id);
         this.dateTime = dateTime;
         this.description = description;
@@ -35,8 +39,8 @@ public class MealTo extends BaseTo {
         return dateTime;
     }
 
-    public void setDateTime(LocalDateTime localDateTime) {
-        this.dateTime = localDateTime;
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
     public String getDescription() {
@@ -47,8 +51,7 @@ public class MealTo extends BaseTo {
         this.description = description;
     }
 
-
-    public int getCalories() {
+    public Integer getCalories() {
         return calories;
     }
 
@@ -69,7 +72,7 @@ public class MealTo extends BaseTo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MealTo that = (MealTo) o;
-        return calories == that.calories &&
+        return Objects.equals(calories, that.calories) &&
                 excess == that.excess &&
                 Objects.equals(id, that.id) &&
                 Objects.equals(dateTime, that.dateTime) &&
