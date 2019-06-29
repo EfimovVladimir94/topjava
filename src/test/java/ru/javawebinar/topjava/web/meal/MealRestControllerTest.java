@@ -1,16 +1,19 @@
 package ru.javawebinar.topjava.web.meal;
 
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.util.exception.ErrorInfo;
+import ru.javawebinar.topjava.util.exception.ErrorType;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -85,6 +88,37 @@ class MealRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void testUpdateNotValidData() throws Exception {
+        Meal updated = getUpdated();
+        updated.setCalories(null);
+        ResultActions action = mockMvc.perform(put(REST_URL + MEAL1_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(updated))
+                .with(userHttpBasic(USER)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
+
+        ErrorInfo info = readFromJson(action, ErrorInfo.class);
+        assertTrue(info.getDetail().contains("NotNull.calories"));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void testUpdateExistingData() throws Exception {
+        Meal updated = getUpdated();
+        updated.setDateTime(MEAL2.getDateTime());
+
+        ResultActions result = mockMvc.perform(put(REST_URL + MEAL1_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(updated))
+                .with(userHttpBasic(USER)))
+                .andExpect(status().isConflict());
+
+        ErrorInfo error = readFromJson(result, ErrorInfo.class);
+        assertEquals(error.getType(), ErrorType.DATA_ERROR);
+    }
+
+    @Test
     void testCreate() throws Exception {
         Meal created = getCreated();
         ResultActions action = mockMvc.perform(post(REST_URL)
@@ -97,6 +131,37 @@ class MealRestControllerTest extends AbstractControllerTest {
 
         assertMatch(returned, created);
         assertMatch(service.getAll(ADMIN_ID), ADMIN_MEAL2, created, ADMIN_MEAL1);
+    }
+
+    @Test
+    void testCreateNotValidData() throws Exception {
+        Meal created = getCreated();
+        created.setDescription("");
+        ResultActions action = mockMvc.perform(post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(created))
+                .with(userHttpBasic(USER)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
+
+        ErrorInfo info = readFromJson(action, ErrorInfo.class);
+        assertTrue(info.getDetail().contains("NotBlank.description"));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void testCreateExistingData() throws Exception {
+        Meal created = getCreated();
+        created.setDateTime(MEAL1.getDateTime());
+        ResultActions result = mockMvc.perform(post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(created))
+                .with(userHttpBasic(USER)))
+                .andExpect(status().isConflict());
+
+        ErrorInfo error = readFromJson(result, ErrorInfo.class);
+        assertEquals(error.getType(), ErrorType.DATA_ERROR);
+
     }
 
     @Test
@@ -126,33 +191,5 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(USER)))
                 .andExpect(status().isOk())
                 .andExpect(contentJson(getWithExcess(MEALS, USER.getCaloriesPerDay())));
-    }
-
-    @Test
-    void updateNotValidData() throws Exception {
-        Meal updated = getUpdated();
-        updated.setCalories(null);
-        ResultActions actions = mockMvc.perform(put(REST_URL + MEAL1_ID)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.writeValue(updated))
-                .with(userHttpBasic(USER)))
-                .andDo(print())
-                .andExpect(status().isUnprocessableEntity());
-        ErrorInfo info = readFromJson(actions, ErrorInfo.class);
-        assertTrue(info.getDetail().contains("length must between 5 and 100 characters"));
-    }
-
-    @Test
-    void createNotValidData() throws Exception {
-        Meal created = getCreated();
-        created.setDescription("");
-        ResultActions actions = mockMvc.perform(post(REST_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.writeValue(created))
-                .with(userHttpBasic(USER)))
-                .andDo(print())
-                .andExpect(status().isUnprocessableEntity());
-        ErrorInfo info = readFromJson(actions, ErrorInfo.class);
-        assertTrue(info.getDetail().contains("NotBlank.description"));
     }
 }
