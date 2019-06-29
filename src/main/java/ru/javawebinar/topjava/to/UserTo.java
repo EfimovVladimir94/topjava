@@ -1,7 +1,12 @@
 package ru.javawebinar.topjava.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.validator.constraints.Range;
+import ru.javawebinar.topjava.util.UserUtil;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class UserTo extends BaseTo {
@@ -15,17 +20,24 @@ public class UserTo extends BaseTo {
     @Size(max = 100)
     private String email;
 
-    @Size(min = 5, max = 32, message = "length must between 5 and 32 characters")
+    @Size(min = 5, max = 32, message = "length must between 5 and 100 characters")
+    @NotBlank
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
+    @Range(min = 10, max = 10000)
+    @NotNull
+    private Integer caloriesPerDay = UserUtil.DEFAULT_CALORIES_PER_DAY;
 
     public UserTo() {
     }
 
-    public UserTo(Integer id, String name, String email, String password) {
+    public UserTo(Integer id, String name, String email, String password, Integer caloriesPerDay) {
         super(id);
         this.name = name;
         this.email = email;
         this.password = password;
+        this.caloriesPerDay = caloriesPerDay;
     }
 
     public String getPassword() {
@@ -50,6 +62,14 @@ public class UserTo extends BaseTo {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Integer getCaloriesPerDay() {
+        return caloriesPerDay;
+    }
+
+    public void setCaloriesPerDay(Integer caloriesPerDay) {
+        this.caloriesPerDay = caloriesPerDay;
     }
 
     @Override

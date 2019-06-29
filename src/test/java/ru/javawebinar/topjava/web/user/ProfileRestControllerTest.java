@@ -3,12 +3,18 @@ package ru.javawebinar.topjava.web.user;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.to.UserTo;
 import ru.javawebinar.topjava.util.UserUtil;
+import ru.javawebinar.topjava.util.exception.ErrorInfo;
+import ru.javawebinar.topjava.util.exception.ErrorType;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -48,7 +54,7 @@ class ProfileRestControllerTest extends AbstractControllerTest {
         UserTo createdTo = new UserTo(null, "newName", "newemail@ya.ru", "newPassword", 1500);
 
         ResultActions action = mockMvc.perform(post(REST_URL + "/register").contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.writeValue(createdTo)))
+                .content(jsonWithPassword(createdTo, createdTo.getPassword())))
                 .andDo(print())
                 .andExpect(status().isCreated());
         User returned = readFromJson(action, User.class);
@@ -61,15 +67,69 @@ class ProfileRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void testRegisterNotValidData() throws Exception {
+        UserTo createdTo = new UserTo(null, "newName", "123", "newPassword", 1500);
+
+        ResultActions action = mockMvc.perform(post(REST_URL + "/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonWithPassword(createdTo, createdTo.getPassword())))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
+        ErrorInfo info = readFromJson(action, ErrorInfo.class);
+        assertTrue(info.getDetail().contains("must be a well-formed email address"));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void testRegisterExistingData() throws Exception {
+        UserTo createdTo = new UserTo(null, "newName", "user@yandex.ru", "newPassword", 1500);
+
+        ResultActions action = mockMvc.perform(post(REST_URL + "/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonWithPassword(createdTo, createdTo.getPassword())))
+                .andExpect(status().isConflict());
+
+        ErrorInfo error = readFromJson(action, ErrorInfo.class);
+        assertEquals(error.getType(), ErrorType.DATA_ERROR);
+    }
+
+    @Test
     void testUpdate() throws Exception {
         UserTo updatedTo = new UserTo(null, "newName", "newemail@ya.ru", "newPassword", 1500);
 
         mockMvc.perform(put(REST_URL).contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(USER))
-                .content(JsonUtil.writeValue(updatedTo)))
+                .content(jsonWithPassword(updatedTo, updatedTo.getPassword())))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
         assertMatch(userService.getByEmail("newemail@ya.ru"), UserUtil.updateFromTo(new User(USER), updatedTo));
+    }
+
+    @Test
+    void testUpdateNotValidData() throws Exception {
+        UserTo updatedTo = new UserTo(null, "newName", "newemail@ya.ru", "newPassword", 5);
+        ResultActions actions = mockMvc.perform(put(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(USER))
+                .content(jsonWithPassword(updatedTo, updatedTo.getPassword())))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
+        ErrorInfo info = readFromJson(actions, ErrorInfo.class);
+        assertTrue(info.getDetail().contains("must be between 10 and 10000"));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void testUpdateExistingData() throws Exception {
+        UserTo createdTo = new UserTo(null, "newName", "user@yandex.ru", "newPassword", 1500);
+
+        ResultActions action = mockMvc.perform(put(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonWithPassword(createdTo, createdTo.getPassword())))
+                .andExpect(status().isConflict());
+
+        ErrorInfo error = readFromJson(action, ErrorInfo.class);
+        assertEquals(error.getType(), ErrorType.DATA_ERROR);
     }
 }

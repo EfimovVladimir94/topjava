@@ -7,9 +7,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
+import ru.javawebinar.topjava.util.exception.ErrorInfo;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -124,5 +126,33 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(USER)))
                 .andExpect(status().isOk())
                 .andExpect(contentJson(getWithExcess(MEALS, USER.getCaloriesPerDay())));
+    }
+
+    @Test
+    void updateNotValidData() throws Exception {
+        Meal updated = getUpdated();
+        updated.setCalories(null);
+        ResultActions actions = mockMvc.perform(put(REST_URL + MEAL1_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(updated))
+                .with(userHttpBasic(USER)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
+        ErrorInfo info = readFromJson(actions, ErrorInfo.class);
+        assertTrue(info.getDetail().contains("length must between 5 and 100 characters"));
+    }
+
+    @Test
+    void createNotValidData() throws Exception {
+        Meal created = getCreated();
+        created.setDescription("");
+        ResultActions actions = mockMvc.perform(post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(created))
+                .with(userHttpBasic(USER)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
+        ErrorInfo info = readFromJson(actions, ErrorInfo.class);
+        assertTrue(info.getDetail().contains("NotBlank.description"));
     }
 }
