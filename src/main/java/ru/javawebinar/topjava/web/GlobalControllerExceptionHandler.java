@@ -29,13 +29,13 @@ public class GlobalControllerExceptionHandler {
         return logAndGetExceptionView(req, e, true, ErrorType.APP_ERROR);
     }
 
-    private ModelAndView logAndGetExceptionView(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType) {
+    private ModelAndView logAndGetExceptionView(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType, String msg) {
         Throwable rootCause = ValidationUtil.logAndGetRootCause(log, req, e, logException, errorType);
 
         ModelAndView mav = new ModelAndView("exception/exception");
         mav.addObject("typeMessage", messageUtil.getMessage(errorType.getErrorCode()));
         mav.addObject("exception", rootCause);
-        mav.addObject("message", ValidationUtil.getMessage(rootCause));
+        mav.addObject("message", msg != null ? msg : ValidationUtil.getMessage(rootCause));
         return mav;
     }
 }
